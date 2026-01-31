@@ -1,6 +1,16 @@
 # FollowLoseWieght (PWA)
 
-Application PWA (React + TypeScript + Tailwind) optimisée mobile, déployable sur GitHub Pages.
+PWA mobile-first (React + TypeScript + Tailwind) déployable sur GitHub Pages.
+
+## Fonctionnalités
+- Choix de l’unité **kg / lb** dans la configuration
+- Décimales acceptées avec **virgule** (ex: 71,6)
+- Affiche :
+  - Objectif total
+  - Poids cible
+  - **Moyenne / jour** (objectif / durée)
+  - **Rythme requis / jour** recalculé selon ton poids du jour et les jours restants
+- Offline (données en local)
 
 ## Pré-requis
 - Node.js 20+
@@ -13,7 +23,6 @@ cd FollowLoseWieght
 npm install
 npm run dev
 ```
-Puis ouvre l'URL indiquée par Vite.
 
 ## Build
 ```bash
@@ -21,28 +30,22 @@ npm run build
 npm run preview
 ```
 
-## Déploiement sur GitHub Pages (méthode GitHub Actions — recommandé)
-Le workflow est déjà inclus : `.github/workflows/deploy.yml`.
+## Déploiement sur GitHub Pages (recommandé)
+Le workflow est inclus : `.github/workflows/deploy.yml`.
 
-1) Pousse le code sur `main` :
+1) Push sur `main` :
 ```bash
 git add .
-git commit -m "Initial PWA"
+git commit -m "Update PWA"
 git push origin main
 ```
-2) Dans GitHub : **Settings → Pages**  
-   Source: **GitHub Actions**
+2) GitHub : **Settings → Pages**  
+Source : **GitHub Actions**
 
-Le site sera publié sous : `https://thibisault.github.io/FollowLoseWieght/`
+Le site sera : `https://thibisault.github.io/FollowLoseWieght/`
 
-## Déploiement (méthode commande)
-Cette méthode publie sur la branche `gh-pages`.
-
+## Déploiement (commande)
+Publie sur la branche `gh-pages` :
 ```bash
 npm run deploy
 ```
-
-## Utilisation sur téléphone
-- Ouvre le site GitHub Pages sur Chrome / Safari
-- Ajoute à l’écran d’accueil (PWA)
-- Les données sont stockées localement sur l’appareil

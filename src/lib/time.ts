@@ -33,6 +33,6 @@ export function daysUntil(endISO: string, fromISO: string): number {
 
 export function formatFr(iso: string): string {
   const d = parseISODate(iso)
-  const fmt = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+  const fmt = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short' })
   return fmt.format(d)
 }

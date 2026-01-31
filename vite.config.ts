@@ -13,12 +13,11 @@ export default defineConfig(({ mode }) => ({
       injectRegister: 'auto',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        navigateFallbackDenylist: [/^\/api\//],
       },
       manifest: {
         name: 'FollowLoseWieght',
         short_name: 'FollowLose',
-        description: 'Suivi de progression et objectif sur une durée.',
+        description: 'Suivi simple et objectif sur une durée.',
         theme_color: '#0B0B10',
         background_color: '#0B0B10',
         display: 'standalone',

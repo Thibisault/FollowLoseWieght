@@ -7,7 +7,7 @@ export type Derived = {
   totalDays: number
   daysElapsed: number
   daysRemaining: number
-  expectedWeightTodayKg: number
+  plannedDailyLossKg: number
   currentWeightKg: number | null
   remainingLossKg: number | null
   requiredDailyLossKg: number | null
@@ -26,9 +26,7 @@ export function derive(plan: Plan, entries: Entry[]): Derived {
   const daysElapsed = clamp(elapsed, 0, totalDays - 1)
 
   const daysRemaining = daysUntil(plan.endDate, today)
-
-  const dailyPlannedLoss = plan.targetLossKg / totalDays
-  const expectedWeightTodayKg = plan.startWeightKg - dailyPlannedLoss * daysElapsed
+  const plannedDailyLossKg = totalDays > 0 ? plan.targetLossKg / totalDays : 0
 
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date))
   const latest = sorted.length ? sorted[sorted.length - 1] : null
@@ -37,7 +35,7 @@ export function derive(plan: Plan, entries: Entry[]): Derived {
   const remainingLossKg = currentWeightKg == null ? null : Math.max(0, currentWeightKg - endWeightKg)
   const requiredDailyLossKg = (remainingLossKg == null || daysRemaining === 0) ? null : remainingLossKg / daysRemaining
 
-  // Simple guardrail: losing > 1% of current weight per week is flagged as "aggressive"
+  // Guardrail: if required rate > ~1% body weight/week, flag as aggressive.
   const weeklyLoss = (requiredDailyLossKg ?? 0) * 7
   const weeklyPct = currentWeightKg ? (weeklyLoss / currentWeightKg) * 100 : 0
   const isAggressive = weeklyPct > 1.0
@@ -47,7 +45,7 @@ export function derive(plan: Plan, entries: Entry[]): Derived {
     totalDays,
     daysElapsed,
     daysRemaining,
-    expectedWeightTodayKg,
+    plannedDailyLossKg,
     currentWeightKg,
     remainingLossKg,
     requiredDailyLossKg,

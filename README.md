@@ -2,19 +2,18 @@
 
 PWA mobile-first (React + TypeScript + Tailwind) déployable sur GitHub Pages.
 
-## Fonctionnalités
-- Choix de l’unité **kg / lb** dans la configuration
-- Décimales acceptées avec **virgule** (ex: 71,6)
-- Affiche :
-  - Objectif total
-  - Poids cible
-  - **Moyenne / jour** (objectif / durée)
-  - **Rythme requis / jour** recalculé selon ton poids du jour et les jours restants
-- Offline (données en local)
+## Fonctionnement
+- Tu choisis :
+  - **Durée** (jours)
+  - **Poids de départ**
+  - **Poids objectif**
+  - **Unité** (kg / lb)
+- Chaque jour tu entres ton poids
+- L’app calcule une **moyenne/jour à perdre** qui se **réajuste** selon le poids actuel et les jours restants.
 
-## Pré-requis
-- Node.js 20+
-- Git
+Formule :
+- poids restant à perdre = max(0, poids actuel - poids objectif)
+- moyenne/jour = poids restant à perdre / jours restants
 
 ## Installation (local)
 ```bash
@@ -24,28 +23,6 @@ npm install
 npm run dev
 ```
 
-## Build
-```bash
-npm run build
-npm run preview
-```
-
-## Déploiement sur GitHub Pages (recommandé)
-Le workflow est inclus : `.github/workflows/deploy.yml`.
-
-1) Push sur `main` :
-```bash
-git add .
-git commit -m "Update PWA"
-git push origin main
-```
-2) GitHub : **Settings → Pages**  
-Source : **GitHub Actions**
-
-Le site sera : `https://thibisault.github.io/FollowLoseWieght/`
-
-## Déploiement (commande)
-Publie sur la branche `gh-pages` :
-```bash
-npm run deploy
-```
+## Déploiement GitHub Pages
+Workflow inclus : `.github/workflows/deploy.yml`
+- Push sur `main`, puis Settings → Pages → Source: GitHub Actions

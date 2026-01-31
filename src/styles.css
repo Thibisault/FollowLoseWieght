@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 :root { color-scheme: dark; }
-
 * { -webkit-tap-highlight-color: transparent; }
 
 body {

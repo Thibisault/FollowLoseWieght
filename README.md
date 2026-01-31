@@ -26,3 +26,8 @@ npm run dev
 ## Déploiement GitHub Pages
 Workflow inclus : `.github/workflows/deploy.yml`
 - Push sur `main`, puis Settings → Pages → Source: GitHub Actions
+
+
+## Historique
+- Liste des poids du plus récent au plus ancien.
+- Affiche aussi le **poids de départ**.

@@ -54,7 +54,17 @@ export default function App() {
   const derived = useMemo(() => (plan ? derive(plan, state.entries) : null), [plan, state.entries])
   const recent = useMemo(() => lastNDays(state.entries, 14), [state.entries])
 
-  const [planDraft, setPlanDraft] = useState<PlanDraftUI>({ unit: 'kg', startWeight: '', targetWeight: '', durationDays: '30' })
+  const entriesDesc = useMemo(
+    () => [...state.entries].sort((a, b) => b.date.localeCompare(a.date)),
+    [state.entries],
+  )
+
+  const [planDraft, setPlanDraft] = useState<PlanDraftUI>({
+    unit: 'kg',
+    startWeight: '',
+    targetWeight: '',
+    durationDays: '30',
+  })
   const [entryDraft, setEntryDraft] = useState<EntryDraftUI>({ date: todayISO(), weight: '' })
 
   useEffect(() => {
@@ -95,9 +105,11 @@ export default function App() {
     'w-full rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-[15px] font-semibold text-red-100 active:scale-[0.99] transition'
 
   const current = derived && plan ? `${fmt1(toUnit(derived.currentWeightKg, unit))} ${unitLabel(unit)}` : '—'
+  const start = plan ? `${fmt1(toUnit(plan.startWeightKg, unit))} ${unitLabel(unit)}` : '—'
   const target = derived && plan ? `${fmt1(toUnit(derived.targetWeightKg, unit))} ${unitLabel(unit)}` : '—'
   const remainingLoss = derived && plan ? `${fmt1(toUnit(derived.remainingLossKg, unit))} ${unitLabel(unit)}` : '—'
-  const avg = derived && plan && derived.avgLossPerDayKg != null ? `${fmt2(toUnit(derived.avgLossPerDayKg, unit))} ${unitLabel(unit)}/j` : '—'
+  const avg =
+    derived && plan && derived.avgLossPerDayKg != null ? `${fmt2(toUnit(derived.avgLossPerDayKg, unit))} ${unitLabel(unit)}/j` : '—'
 
   return (
     <div className="min-h-dvh text-white safe-top safe-bottom">
@@ -109,7 +121,10 @@ export default function App() {
               <div className="mt-1 text-[12px] text-white/50">Objectif • Durée • Suivi</div>
             </div>
 
-            <button onClick={() => setOpenPlan(true)} className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[12px] text-white/85">
+            <button
+              onClick={() => setOpenPlan(true)}
+              className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-[12px] text-white/85"
+            >
               {plan ? 'Plan' : 'Configurer'}
             </button>
           </div>
@@ -128,6 +143,15 @@ export default function App() {
                 </div>
               </div>
 
+              <div className="mt-3 flex items-center justify-between text-[12px] text-white/45">
+                <div>
+                  Départ : <span className="text-white/70 tabular-nums">{start}</span>
+                </div>
+                <div>
+                  À perdre : <span className="text-white/70 tabular-nums">{remainingLoss}</span>
+                </div>
+              </div>
+
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center">
                   <div className={subtle}>Objectif</div>
@@ -142,13 +166,24 @@ export default function App() {
 
               <div className="mt-3 flex items-center justify-between">
                 <div className="text-[12px] text-white/45">
-                  À perdre : <span className="text-white/70 tabular-nums">{remainingLoss}</span>
+                  {plan && derived ? (
+                    <>
+                      Progression : <span className="text-white/70 tabular-nums">{Math.round(derived.progress * 100)}%</span>
+                    </>
+                  ) : (
+                    <span>—</span>
+                  )}
                 </div>
                 {plan && derived ? <ProgressRing value={derived.progress} /> : null}
               </div>
 
               <div className="mt-4">
-                <button onClick={() => setOpenEntry(true)} className={actionBtn} disabled={!plan} style={!plan ? { opacity: 0.5 } : undefined}>
+                <button
+                  onClick={() => setOpenEntry(true)}
+                  className={actionBtn}
+                  disabled={!plan}
+                  style={!plan ? { opacity: 0.5 } : undefined}
+                >
                   Entrer mon poids du jour
                 </button>
               </div>
@@ -165,6 +200,40 @@ export default function App() {
           <div className="mt-4">
             <Sparkline entries={recent} />
           </div>
+
+          {plan && entriesDesc.length ? (
+            <div className={`${card} mt-4 p-5`}>
+              <div className="flex items-center justify-between">
+                <div className="text-[14px] font-semibold">Historique</div>
+                <div className="text-[12px] text-white/50">{entriesDesc.length} entrée(s)</div>
+              </div>
+
+              <div className="mt-3 space-y-2 max-h-[320px] overflow-auto pr-1">
+                {entriesDesc.map((e, idx) => {
+                  const isTop = idx === 0
+                  return (
+                    <div
+                      key={e.date}
+                      className={
+                        'flex items-center justify-between rounded-2xl border px-4 py-3 ' +
+                        (isTop
+                          ? 'border-white/15 bg-gradient-to-r from-white/10 to-white/5'
+                          : 'border-white/10 bg-white/5')
+                      }
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="text-[13px] text-white/85">{formatFrShort(e.date)}</div>
+                        {isTop ? <span className="text-[11px] text-white/50">dernier</span> : null}
+                      </div>
+                      <div className="text-[13px] font-semibold tabular-nums">
+                        {fmt1(toUnit(e.weightKg, unit))} {unitLabel(unit)}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ) : null}
 
           <div className="mt-6 text-center text-[11px] text-white/30">Offline • Installable</div>
         </div>
@@ -204,17 +273,35 @@ export default function App() {
 
           <div>
             <div className="mb-2 text-[12px] text-white/60">Durée (jours)</div>
-            <input inputMode="numeric" placeholder="ex. 30" value={planDraft.durationDays} onChange={(e) => setPlanDraft({ ...planDraft, durationDays: e.target.value })} className={classyInput(true)} />
+            <input
+              inputMode="numeric"
+              placeholder="ex. 30"
+              value={planDraft.durationDays}
+              onChange={(e) => setPlanDraft({ ...planDraft, durationDays: e.target.value })}
+              className={classyInput(true)}
+            />
           </div>
 
           <div>
             <div className="mb-2 text-[12px] text-white/60">Poids de départ ({unitLabel(planDraft.unit)})</div>
-            <input inputMode="decimal" placeholder="ex. 71,6" value={planDraft.startWeight} onChange={(e) => setPlanDraft({ ...planDraft, startWeight: e.target.value })} className={classyInput(true)} />
+            <input
+              inputMode="decimal"
+              placeholder="ex. 71,6"
+              value={planDraft.startWeight}
+              onChange={(e) => setPlanDraft({ ...planDraft, startWeight: e.target.value })}
+              className={classyInput(true)}
+            />
           </div>
 
           <div>
             <div className="mb-2 text-[12px] text-white/60">Poids objectif ({unitLabel(planDraft.unit)})</div>
-            <input inputMode="decimal" placeholder="ex. 68" value={planDraft.targetWeight} onChange={(e) => setPlanDraft({ ...planDraft, targetWeight: e.target.value })} className={classyInput(true)} />
+            <input
+              inputMode="decimal"
+              placeholder="ex. 68"
+              value={planDraft.targetWeight}
+              onChange={(e) => setPlanDraft({ ...planDraft, targetWeight: e.target.value })}
+              className={classyInput(true)}
+            />
           </div>
 
           <div className="pt-2">
@@ -267,12 +354,24 @@ export default function App() {
         <div className="space-y-3">
           <div>
             <div className="mb-2 text-[12px] text-white/60">Date</div>
-            <input type="date" value={entryDraft.date} onChange={(e) => setEntryDraft({ ...entryDraft, date: e.target.value })} className={classyInput(true)} />
+            <input
+              type="date"
+              value={entryDraft.date}
+              onChange={(e) => setEntryDraft({ ...entryDraft, date: e.target.value })}
+              className={classyInput(true)}
+            />
           </div>
 
           <div>
             <div className="mb-2 text-[12px] text-white/60">Poids</div>
-            <input inputMode="decimal" placeholder="ex. 71,6" value={entryDraft.weight} onChange={(e) => setEntryDraft({ ...entryDraft, weight: e.target.value })} className={classyInput(true)} autoFocus />
+            <input
+              inputMode="decimal"
+              placeholder="ex. 71,6"
+              value={entryDraft.weight}
+              onChange={(e) => setEntryDraft({ ...entryDraft, weight: e.target.value })}
+              className={classyInput(true)}
+              autoFocus
+            />
           </div>
 
           <div className="pt-2">
